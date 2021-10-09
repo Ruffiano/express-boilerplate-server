@@ -1,0 +1,70 @@
+version: '2.3'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./nginx.express.server.conf:/etc/nginx/conf.d/default.conf:ro
+    env_file: ./.env
+    ports:
+      - $NGINX_PORT:$NGINX_PORT
+  express.boilerplate.server.com:
+    container_name: express.boilerplate.server.com
+    build: .
+    restart: unless-stopped
+    command: npm run start
+    env_file: ./.env
+    volumes:
+      - .:/express.boilerplate.server.com/
+      - /express.boilerplate.server.com/node_modules
+    ports:
+      - $PORT:$PORT
+    environment:
+      - PORT=$PORT
+      - NODE_ENV=$NODE_ENV
+    logging:
+      options:
+        max-size: 1m
+    stdin_open: true
+    tty: true
+  express.worker.1.com:
+    container_name: express.worker.1.com
+    build: .
+    restart: unless-stopped
+    command: npm run worker
+    env_file: ./.env
+    volumes:
+      - ./worker:/express.worker.1.com/worker
+      - ./package.json:/express.worker.1.com/package.json
+      - ./node_modules:/express.worker.1.com/node_modules
+    ports:
+      - $WORKER_PORT_1:$WORKER_PORT_1
+    environment:
+      - WORKER_PORT=$WORKER_PORT_1
+      - NODE_ENV=$NODE_ENV
+    logging:
+      options:
+        max-size: 1m
+    stdin_open: true
+    tty: true
+  express.worker.2.com:
+    container_name: express.worker.2.com
+    build: .
+    restart: unless-stopped
+    command: npm run worker
+    env_file: ./.env
+    volumes:
+      - ./worker:/express.worker.2.com/worker
+      - ./package.json:/express.worker.2.com/package.json
+      - ./node_modules:/express.worker.2.com/node_modules
+    ports:
+      - $WORKER_PORT_2:$WORKER_PORT_2
+    environment:
+      - WORKER_PORT=$WORKER_PORT_2
+      - NODE_ENV=$NODE_ENV
+    logging:
+      options:
+        max-size: 1m
+    stdin_open: true
+    tty: true
