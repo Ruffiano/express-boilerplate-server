@@ -22,7 +22,7 @@ describe('/api/categores', () => {
         });
     });
 
-    describe('GET  /:id',  () => {
+    describe('GET  /:id', () => {
         // it('should return if valid id is given', async () => {
         //     const  category = new  Category({name:  'AIW  Class'})
         //     await category.save();
@@ -43,8 +43,8 @@ describe('/api/categores', () => {
 
         it('should return 404 if no category withthe passed id exist', async () => {
             const categoryId = mongoose.Types.ObjectId();
-            const response =  await request(server)
-                .get('/api/categories/'+categoryId)
+            const response = await request(server)
+                .get('/api/categories/' + categoryId)
                 .set('x-auth-token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Zjk2OTM0YzNhZDU2ZmU2ZDAxMjdkNWMiLCJpYXQiOjE2MDM3MTA3MTN9.NawxaHAn0JPSPEZKG3H3bwYBXQGSJZ5tLIa1e4cQztQ')
             expect(response.status).toBe(404)
         })
@@ -53,9 +53,6 @@ describe('/api/categores', () => {
     describe('POST /', () => {
         let token;
         let name;
-
-        // testlar uchun ishlatiladigan funktsiyani bu yerda oldindan
-        // aniqlab olamiz va uni har bir test ichida alohida chaqiramiz
         const execute = async () => {
             return await request(server)
                 .post('/api/categories')

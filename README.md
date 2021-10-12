@@ -87,9 +87,79 @@ List of available routes:
 
 <br/>
 
+### NGINX Configuration for load balancer:
+
+If you want to run project by manualy without docker image, you shoul folow configuration steps in below, otherwise just type "docker-compose up" in command line:
+
+- Now let’s install Nginx in ubuntu.
+
+```bash
+sudo apt-get update
+sudo apt install nginx
+```
+- Next, open the file 
+```bash
+sudo nano /etc/nginx/sites-enabled/myserver.conf
+```
+- Add this configurations into .conf file
+
+```
+upstream workers {  
+    server express.worker.1.com:5001 weight=6 max_fails=3 fail_timeout=30s;  # node 1
+    server express.worker.2.com:5002 weight=4 max_fails=3 fail_timeout=30s;  # node 2
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name amazonaws.com;  
+    
+    location / {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-NginX-Proxy true;
+        proxy_pass http://express.boilerplate.server.com:5000/;
+        proxy_redirect off;
+    }    
+    location /worker {
+        proxy_set_header X-Real-IP $remote_addr;  
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  
+        proxy_set_header Host $http_host;  
+        proxy_set_header X-NginX-Proxy true;  
+        proxy_pass http://workers/;  
+        proxy_redirect off;  
+    } 
+}
+```
+- Type this comand line
+```bash
+sudo nginx -t 
+```
+The output upon running the above command would look like this:
+```
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+- The above output confirms that our configuration was successful. Next, stop and restart Nginx to enable your changes. Nginx is started upon installation by default.
+```bash
+sudo systemctl restart nginx
+```
+- If Nginx doesn’t automatically start for some reason, the command to start it is:
+```bash
+sudo systemctl start nginx
+```
+
+- Now it’s time to start our project
+```bash
+npm run start && npm run worker
+```
+
+
 ## Other Projects by Topic:
 1. [algorithms-and-data-structures](https://github.com/Ruffiano/algorithms-and-data-structures) - Data sturcture and algorithm.
-2. loadbalancer.worker.server - Load Balancing and workers NodeJs apps using Nginx.
+2. [loadbalancer.worker.server](https://github.com/Ruffiano/loadbalancer-worker-server) - Load Balancing and workers NodeJs apps using Nginx.
 3. [crash-reporter-server](https://github.com/Ruffiano/crash-reporter-server) - Collects any crashes (error, unhandled exceptiont, [log, info, warning]) by any application.
 
 <br/>
